@@ -1,0 +1,49 @@
+name: sergeismv_portfolio
+description: "Portfolio of Sergei Semenov — Senior Flutter Developer."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # State management
+  flutter_bloc: ^8.1.6
+  equatable: ^2.0.5
+
+  # Dependency injection
+  get_it: ^7.7.0
+
+  # Navigation (web-first, deep-linking friendly)
+  go_router: ^14.6.2
+
+  # Markdown + YAML frontmatter для контента проектов
+  flutter_markdown: ^0.7.4+1
+  markdown: ^7.2.2
+  yaml: ^3.1.2
+
+  # Typography
+  google_fonts: ^6.2.1
+
+  # Platform integrations
+  shared_preferences: ^2.3.2
+  url_launcher: ^6.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/projects/index.json
+    - assets/projects/compass-ble/

@@ -1,0 +1,246 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../app/router/app_routes.dart';
+import '../../app/theme/theme_cubit.dart';
+import '../constants/app_strings.dart';
+import '../responsive/breakpoints.dart';
+
+/// Top-level scaffold shared by every route: app bar + optional mobile
+/// drawer + routed body. Wrapped around the router via [ShellRoute].
+class AppShell extends StatelessWidget {
+  const AppShell({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final isMobile = context.isMobile;
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(72),
+        child: _AppTopBar(isMobile: isMobile),
+      ),
+      endDrawer: isMobile ? const _MobileDrawer() : null,
+      body: child,
+    );
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Top bar
+// -----------------------------------------------------------------------------
+
+class _AppTopBar extends StatelessWidget {
+  const _AppTopBar({required this.isMobile});
+
+  final bool isMobile;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.scaffoldBackgroundColor.withValues(alpha: 0.9),
+        border: Border(
+          bottom: BorderSide(color: theme.dividerColor),
+        ),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Center(
+          child: ConstrainedBox(
+            constraints:
+                const BoxConstraints(maxWidth: Breakpoints.maxContentWidth),
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: context.responsive(
+                  mobile: 20,
+                  tablet: 32,
+                  desktop: 48,
+                ),
+              ),
+              child: Row(
+                children: [
+                  _Logo(onTap: () => GoRouter.of(context).go(AppRoutes.home)),
+                  const Spacer(),
+                  if (!isMobile) ...[
+                    _NavLink(
+                      label: AppStrings.navHome,
+                      onTap: () =>
+                          GoRouter.of(context).go(AppRoutes.home),
+                    ),
+                    const SizedBox(width: 24),
+                    _NavLink(
+                      label: AppStrings.navProjects,
+                      onTap: () =>
+                          GoRouter.of(context).go(AppRoutes.projects),
+                    ),
+                    const SizedBox(width: 16),
+                  ],
+                  const _ThemeToggle(),
+                  if (isMobile) ...[
+                    const SizedBox(width: 4),
+                    Builder(
+                      builder: (ctx) => IconButton(
+                        icon: const Icon(Icons.menu),
+                        onPressed: () => Scaffold.of(ctx).openEndDrawer(),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Logo extends StatelessWidget {
+  const _Logo({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    theme.colorScheme.primary,
+                    theme.colorScheme.secondary,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: Text(
+                  AppStrings.brandShort,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            if (!context.isMobile)
+              Text(
+                AppStrings.authorName,
+                style: theme.textTheme.titleMedium,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NavLink extends StatefulWidget {
+  const _NavLink({required this.label, required this.onTap});
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  State<_NavLink> createState() => _NavLinkState();
+}
+
+class _NavLinkState extends State<_NavLink> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: Text(
+          widget.label,
+          style: theme.textTheme.titleSmall?.copyWith(
+            color: _hover
+                ? theme.colorScheme.primary
+                : theme.colorScheme.onSurface,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ThemeToggle extends StatelessWidget {
+  const _ThemeToggle();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ThemeCubit, ThemeMode>(
+      builder: (context, mode) {
+        final isDark = mode == ThemeMode.dark;
+        return IconButton(
+          tooltip: isDark ? 'Светлая тема' : 'Тёмная тема',
+          onPressed: () => context.read<ThemeCubit>().toggle(),
+          icon: Icon(
+            isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+          ),
+        );
+      },
+    );
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Mobile drawer
+// -----------------------------------------------------------------------------
+
+class _MobileDrawer extends StatelessWidget {
+  const _MobileDrawer();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Drawer(
+      backgroundColor: theme.colorScheme.surface,
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ListTile(
+                title: const Text(AppStrings.navHome),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  GoRouter.of(context).go(AppRoutes.home);
+                },
+              ),
+              ListTile(
+                title: const Text(AppStrings.navProjects),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  GoRouter.of(context).go(AppRoutes.projects);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
