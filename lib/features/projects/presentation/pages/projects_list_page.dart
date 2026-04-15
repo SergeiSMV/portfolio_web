@@ -6,6 +6,7 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/responsive/breakpoints.dart';
 import '../../../../core/widgets/max_width_box.dart';
 import '../../../../core/widgets/section_header.dart';
+import '../../../home/presentation/widgets/plexus_viewport_background.dart';
 import '../../domain/entities/project.dart';
 import '../cubit/projects_list_cubit.dart';
 import '../widgets/project_card.dart';
@@ -28,41 +29,49 @@ class _ProjectsListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 80),
-        child: MaxWidthBox(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SectionHeader(
-                label: 'Работы',
-                title: AppStrings.sectionProjects,
-                subtitle: AppStrings.projectsIntro,
-              ),
-              const SizedBox(height: 40),
-              BlocBuilder<ProjectsListCubit, ProjectsListState>(
-                builder: (context, state) {
-                  return switch (state) {
-                    ProjectsListInitial() || ProjectsListLoading() =>
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 64),
-                        child: Center(child: CircularProgressIndicator()),
-                      ),
-                    ProjectsListError(:final message) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 64),
-                        child: Center(
-                          child: Text('${AppStrings.loadingError}: $message'),
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        const Positioned.fill(
+          child: IgnorePointer(child: PlexusViewportBackground()),
+        ),
+        SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 80),
+            child: MaxWidthBox(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SectionHeader(
+                    label: 'Работы',
+                    title: AppStrings.sectionProjects,
+                    subtitle: AppStrings.projectsIntro,
+                  ),
+                  const SizedBox(height: 40),
+                  BlocBuilder<ProjectsListCubit, ProjectsListState>(
+                    builder: (context, state) {
+                      return switch (state) {
+                        ProjectsListInitial() ||
+                        ProjectsListLoading() => const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 64),
+                          child: Center(child: CircularProgressIndicator()),
                         ),
-                      ),
-                    ProjectsListLoaded() => _LoadedBody(state: state),
-                  };
-                },
+                        ProjectsListError(:final message) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 64),
+                          child: Center(
+                            child: Text('${AppStrings.loadingError}: $message'),
+                          ),
+                        ),
+                        ProjectsListLoaded() => _LoadedBody(state: state),
+                      };
+                    },
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 }
@@ -108,8 +117,9 @@ class _ProjectsGrid extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         const spacing = 24.0;
-        final safeColumns =
-            projects.length < columns ? projects.length : columns;
+        final safeColumns = projects.length < columns
+            ? projects.length
+            : columns;
         if (safeColumns == 0) return const SizedBox.shrink();
         final itemWidth =
             (constraints.maxWidth - spacing * (safeColumns - 1)) / safeColumns;

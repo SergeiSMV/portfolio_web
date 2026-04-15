@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/responsive/breakpoints.dart';
+
 /// Фон «plexus»: узлы (частицы) + линии между близкими парами.
 ///
 /// Рисуется [CustomPainter] на весь viewport. В [HomePage] лежит в [Stack]
@@ -26,15 +28,42 @@ class _PlexusViewportBackgroundState extends State<PlexusViewportBackground>
 
   /// Список частиц фиксируется один раз в [initState] (стабильная сеть).
   late final List<_Particle> _particles;
+  bool _particlesInitialized = false;
+
+  late bool _isMobile;
 
   @override
   void initState() {
     super.initState();
-    // Фиксированный seed → одна и та же «карта» частиц после hot restart.
+    _tick = AnimationController(
+      vsync: this,
+      // Длительность одного цикла значения не важна: стоит repeat().
+      duration: const Duration(seconds: 1),
+    )..repeat();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _isMobile = context.screenSize == ScreenSize.mobile;
+    if (_particlesInitialized) return;
+    // Здесь уже безопасно читать MediaQuery через context.screenSize.
     final rnd = math.Random(42);
     // Первый аргумент List.generate — количество частиц (нагрузка ~ n² на рёбра).
-    _particles = List.generate(
-      130,
+    _particles = _getParticles(context, rnd);
+    _particlesInitialized = true;
+  }
+
+  @override
+  void dispose() {
+    _tick.dispose();
+    super.dispose();
+  }
+
+  /// Генерирует список частиц в зависимости от размера экрана
+  List<_Particle> _getParticles(BuildContext context, math.Random rnd) {
+    return List.generate(
+      _isMobile ? 80 : 180,
       (_) => _Particle(
         // Нормализованные координаты центра траектории [0..1].
         baseX: rnd.nextDouble(),
@@ -48,17 +77,6 @@ class _PlexusViewportBackgroundState extends State<PlexusViewportBackground>
         amp: 0.07 + rnd.nextDouble() * 0.11,
       ),
     );
-    _tick = AnimationController(
-      vsync: this,
-      // Длительность одного цикла значения не важна: стоит repeat().
-      duration: const Duration(seconds: 1),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _tick.dispose();
-    super.dispose();
   }
 
   @override
@@ -79,6 +97,7 @@ class _PlexusViewportBackgroundState extends State<PlexusViewportBackground>
           // Явный размер: иначе в Stack без дочернего виджета могли бы быть нули.
           size: Size(constraints.maxWidth, constraints.maxHeight),
           painter: _PlexusPainter(
+            isMobile: _isMobile,
             particles: _particles,
             brightness: brightness,
             animate: !reduceMotion,
@@ -138,11 +157,13 @@ class _Particle {
   }
 }
 
+/// Рисует сеть частиц и линий между ними
 class _PlexusPainter extends CustomPainter {
   _PlexusPainter({
     required this.particles,
     required this.brightness,
     required this.animate,
+    required this.isMobile,
     super.repaint,
   });
 
@@ -152,6 +173,9 @@ class _PlexusPainter extends CustomPainter {
   /// Если false — один статичный кадр (reduce motion), [now] = 0.
   final bool animate;
 
+  /// Флаг для определения размера экрана
+  final bool isMobile;
+
   @override
   void paint(Canvas canvas, Size size) {
     if (size.isEmpty) return;
@@ -160,7 +184,7 @@ class _PlexusPainter extends CustomPainter {
     final now = animate ? DateTime.now().millisecondsSinceEpoch / 1000.0 : 0.0;
 
     /// Множитель к [now]: меньше → медленнее дрейф частиц (см. [_Particle.at]).
-    final tMotion = now * 0.1;
+    final tMotion = now * 0.2;
 
     final isDark = brightness == Brightness.dark;
 
@@ -199,7 +223,10 @@ class _PlexusPainter extends CustomPainter {
 
     // Макс. длина ребра в px: если расстояние между парой меньше — рисуем линию.
     // Зависит от [size.shortestSide] — на мобиле чуть меньше порог, на десктопе больше.
-    final connect = (132 * (size.shortestSide / 720)).clamp(80.0, 158.0);
+    final connect = ((isMobile ? 90 : 300) * (size.shortestSide / 720)).clamp(
+      80.0,
+      158.0,
+    );
 
     // Базовый цвет узла и линии (альфа для линий задаётся отдельно ниже).
     final nodeColor = isDark
@@ -223,7 +250,9 @@ class _PlexusPainter extends CustomPainter {
         final shaped = math.pow(edge, 1.08).toDouble();
         // Итоговая альфа линии: множители 0.48 / 0.26 — «громкость» сети в теме;
         // clamp верх — чтобы дальние рёбра не перебивали контент.
-        final a = (shaped * (isDark ? 0.48 : 0.26)).clamp(0.0, 0.62);
+        /// ИСПРАВЛЕНА ПРОЗРАЧНОСТЬ
+        final a = (shaped * (isDark ? 0.1 : 0.26)).clamp(0.0, 0.62);
+
         linePaint.color = lineBase.withValues(alpha: a);
         canvas.drawLine(positions[i], positions[j], linePaint);
       }
@@ -234,10 +263,13 @@ class _PlexusPainter extends CustomPainter {
     final glow = Paint()..style = PaintingStyle.fill;
     for (final o in positions) {
       // Внешний полупрозрачный диск — «ореол».
-      glow.color = nodeColor.withValues(alpha: isDark ? 0.14 : 0.08);
+      /// ИСПРАВЛЕНА ПРОЗРАЧНОСТЬ
+      glow.color = nodeColor.withValues(alpha: isDark ? 0.05 : 0.08);
+
       canvas.drawCircle(o, nodeR * 2.4, glow);
-      // Яркое ядро точки.
-      glow.color = nodeColor.withValues(alpha: isDark ? 0.55 : 0.35);
+      // Яркое ядро точки. ИСПРАВЛЕНА ПРОЗРАЧНОСТЬ
+      glow.color = nodeColor.withValues(alpha: isDark ? 0.15 : 0.35);
+
       canvas.drawCircle(o, nodeR, glow);
     }
   }

@@ -12,8 +12,10 @@ import '../../../projects/domain/entities/project.dart';
 import '../../../projects/presentation/cubit/projects_list_cubit.dart';
 import '../../../projects/presentation/widgets/project_card.dart';
 
-/// Home preview of featured projects. Grabs a slice from the same cubit
-/// used on the dedicated list page.
+/// Превью проектов на главной странице.
+///
+/// Использует тот же [ProjectsListCubit], что и отдельная страница со списком,
+/// но показывает только ограниченный набор карточек.
 class FeaturedProjectsSection extends StatelessWidget {
   const FeaturedProjectsSection({super.key});
 
@@ -31,6 +33,7 @@ class _FeaturedBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Вертикальные отступы масштабируются по брейкпоинтам.
     return Padding(
       padding: EdgeInsets.symmetric(
         vertical: context.responsive(mobile: 56, tablet: 72, desktop: 100),
@@ -47,16 +50,17 @@ class _FeaturedBody extends StatelessWidget {
             const SizedBox(height: 40),
             BlocBuilder<ProjectsListCubit, ProjectsListState>(
               builder: (context, state) {
+                // Отрисовываем UI по текущему состоянию загрузки списка проектов.
                 return switch (state) {
-                  ProjectsListInitial() || ProjectsListLoading() =>
-                    const SizedBox(
-                      height: 160,
-                      child: Center(child: CircularProgressIndicator()),
-                    ),
-                  ProjectsListError() =>
-                    const Text(AppStrings.loadingError),
-                  ProjectsListLoaded(:final projects) =>
-                    _Grid(projects: _pickFeatured(projects)),
+                  ProjectsListInitial() ||
+                  ProjectsListLoading() => const SizedBox(
+                    height: 160,
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                  ProjectsListError() => const Text(AppStrings.loadingError),
+                  ProjectsListLoaded(:final projects) => _Grid(
+                    projects: _pickFeatured(projects),
+                  ),
                 };
               },
             ),
@@ -64,8 +68,7 @@ class _FeaturedBody extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: TextButton.icon(
-                onPressed: () =>
-                    GoRouter.of(context).go(AppRoutes.projects),
+                onPressed: () => GoRouter.of(context).go(AppRoutes.projects),
                 icon: const Icon(Icons.arrow_forward, size: 18),
                 label: const Text(AppStrings.seeAllProjects),
               ),
@@ -77,8 +80,10 @@ class _FeaturedBody extends StatelessWidget {
   }
 
   List<Project> _pickFeatured(List<Project> all) {
+    // Если явно отмеченных featured нет, показываем первые элементы общего списка.
     final featured = all.where((p) => p.featured).toList();
     final pool = featured.isEmpty ? all : featured;
+    // На главной показываем только первые 3 карточки.
     return pool.take(3).toList();
   }
 }
@@ -92,13 +97,17 @@ class _Grid extends StatelessWidget {
     if (projects.isEmpty) {
       return const Text(AppStrings.noProjects);
     }
+    // Количество колонок зависит от размера экрана.
     final columns = context.responsive(mobile: 1, tablet: 2, desktop: 3);
     return LayoutBuilder(
       builder: (context, constraints) {
         const spacing = 24.0;
-        final safeColumns =
-            projects.length < columns ? projects.length : columns;
+        // Не рисуем больше колонок, чем реально есть карточек.
+        final safeColumns = projects.length < columns
+            ? projects.length
+            : columns;
         if (safeColumns == 0) return const SizedBox.shrink();
+        // Ширина карточки вычисляется из доступной ширины и промежутков.
         final itemWidth =
             (constraints.maxWidth - spacing * (safeColumns - 1)) / safeColumns;
         return Wrap(
