@@ -5,16 +5,21 @@ import 'package:url_launcher/url_launcher.dart';
 /// Renders the project body markdown with theme-aware styling and a
 /// graceful fallback when referenced asset images are missing.
 class ProjectMarkdownView extends StatelessWidget {
-  const ProjectMarkdownView({super.key, required this.markdown});
+  const ProjectMarkdownView({
+    super.key,
+    required this.markdown,
+    this.selectable = false,
+  });
 
   final String markdown;
+  final bool selectable;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return MarkdownBody(
       data: markdown,
-      selectable: true,
+      selectable: selectable,
       styleSheet: MarkdownStyleSheet.fromTheme(theme).copyWith(
         h1: theme.textTheme.headlineLarge,
         h2: theme.textTheme.headlineMedium,

@@ -10,6 +10,7 @@ import '../../../../core/widgets/max_width_box.dart';
 import '../../../../core/widgets/tag_chip.dart';
 import '../../domain/entities/project.dart';
 import '../cubit/project_detail_cubit.dart';
+import '../widgets/code_dust_background.dart';
 import '../widgets/project_markdown_view.dart';
 import '../widgets/project_meta_panel.dart';
 
@@ -32,17 +33,27 @@ class _ProjectDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ProjectDetailCubit, ProjectDetailState>(
-      builder: (context, state) {
-        return switch (state) {
-          ProjectDetailInitial() || ProjectDetailLoading() =>
-            const Center(child: CircularProgressIndicator()),
-          ProjectDetailError(:final message) =>
-            Center(child: Text('Ошибка: $message')),
-          ProjectDetailNotFound(:final slug) => _NotFound(slug: slug),
-          ProjectDetailLoaded(:final project) => _Loaded(project: project),
-        };
-      },
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        const Positioned.fill(
+          child: IgnorePointer(child: CodeDustBackground()),
+        ),
+        BlocBuilder<ProjectDetailCubit, ProjectDetailState>(
+          builder: (context, state) {
+            return switch (state) {
+              ProjectDetailInitial() || ProjectDetailLoading() => const Center(
+                child: CircularProgressIndicator(),
+              ),
+              ProjectDetailError(:final message) => Center(
+                child: Text('Ошибка: $message'),
+              ),
+              ProjectDetailNotFound(:final slug) => _NotFound(slug: slug),
+              ProjectDetailLoaded(:final project) => _Loaded(project: project),
+            };
+          },
+        ),
+      ],
     );
   }
 }
@@ -84,8 +95,7 @@ class _Loaded extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextButton.icon(
-                onPressed: () =>
-                    GoRouter.of(context).go(AppRoutes.projects),
+                onPressed: () => GoRouter.of(context).go(AppRoutes.projects),
                 icon: const Icon(Icons.arrow_back, size: 18),
                 label: const Text(AppStrings.backToProjects),
               ),
@@ -112,8 +122,7 @@ class _Loaded extends StatelessWidget {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children:
-                    project.tags.map((t) => TagChip(label: t)).toList(),
+                children: project.tags.map((t) => TagChip(label: t)).toList(),
               ),
               const SizedBox(height: 48),
               if (context.isDesktop)
@@ -122,7 +131,9 @@ class _Loaded extends StatelessWidget {
                   children: [
                     Expanded(
                       flex: 3,
-                      child: ProjectMarkdownView(markdown: project.body),
+                      child: RepaintBoundary(
+                        child: ProjectMarkdownView(markdown: project.body),
+                      ),
                     ),
                     const SizedBox(width: 48),
                     SizedBox(
@@ -137,7 +148,9 @@ class _Loaded extends StatelessWidget {
                   children: [
                     ProjectMetaPanel(project: project),
                     const SizedBox(height: 32),
-                    ProjectMarkdownView(markdown: project.body),
+                    RepaintBoundary(
+                      child: ProjectMarkdownView(markdown: project.body),
+                    ),
                   ],
                 ),
             ],
