@@ -1,4 +1,4 @@
-# v 1.0.0.2
+# v 1.0.0.3
 name: Deploy Flutter Web
 
 on:
@@ -85,9 +85,13 @@ jobs:
       - name: SSH connectivity test
         run: |
           set -euo pipefail
-          ssh -i ~/.ssh/id_ed25519 \
+          ssh -vvv -i ~/.ssh/id_ed25519 \
             -p "${{ secrets.SSH_PORT }}" \
             -o IdentitiesOnly=yes \
+            -o PreferredAuthentications=publickey \
+            -o PasswordAuthentication=no \
+            -o KbdInteractiveAuthentication=no \
+            -o BatchMode=yes \
             -o StrictHostKeyChecking=accept-new \
             -o ConnectTimeout=15 \
             "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
