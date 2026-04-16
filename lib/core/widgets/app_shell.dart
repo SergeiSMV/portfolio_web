@@ -40,6 +40,7 @@ class _AppTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isVeryNarrow = MediaQuery.sizeOf(context).width < 380;
     return Container(
       decoration: BoxDecoration(
         color: theme.scaffoldBackgroundColor.withValues(alpha: 0.9),
@@ -56,14 +57,17 @@ class _AppTopBar extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: context.responsive(
-                  mobile: 20,
+                  mobile: isVeryNarrow ? 12 : 20,
                   tablet: 32,
                   desktop: 48,
                 ),
               ),
               child: Row(
                 children: [
-                  _Logo(onTap: () => GoRouter.of(context).go(AppRoutes.home)),
+                  _Logo(
+                    compact: isVeryNarrow,
+                    onTap: () => GoRouter.of(context).go(AppRoutes.home),
+                  ),
                   const Spacer(),
                   if (!isMobile) ...[
                     _NavLink(
@@ -79,11 +83,16 @@ class _AppTopBar extends StatelessWidget {
                     ),
                     const SizedBox(width: 16),
                   ],
-                  const _ThemeToggle(),
+                  _ThemeToggle(compact: isVeryNarrow),
                   if (isMobile) ...[
-                    const SizedBox(width: 4),
+                    SizedBox(width: isVeryNarrow ? 0 : 4),
                     Builder(
                       builder: (ctx) => IconButton(
+                        constraints: BoxConstraints.tight(
+                          Size.square(isVeryNarrow ? 36 : 40),
+                        ),
+                        padding: EdgeInsets.zero,
+                        visualDensity: VisualDensity.compact,
                         icon: const Icon(Icons.menu),
                         onPressed: () => Scaffold.of(ctx).openEndDrawer(),
                       ),
@@ -100,8 +109,9 @@ class _AppTopBar extends StatelessWidget {
 }
 
 class _Logo extends StatelessWidget {
-  const _Logo({required this.onTap});
+  const _Logo({required this.onTap, this.compact = false});
   final VoidCallback onTap;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -110,12 +120,15 @@ class _Logo extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+        padding: EdgeInsets.symmetric(
+          horizontal: compact ? 2 : 6,
+          vertical: compact ? 4 : 6,
+        ),
         child: Row(
           children: [
             Container(
-              width: 36,
-              height: 36,
+              width: compact ? 32 : 36,
+              height: compact ? 32 : 36,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -186,7 +199,8 @@ class _NavLinkState extends State<_NavLink> {
 }
 
 class _ThemeToggle extends StatelessWidget {
-  const _ThemeToggle();
+  const _ThemeToggle({this.compact = false});
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -194,6 +208,9 @@ class _ThemeToggle extends StatelessWidget {
       builder: (context, mode) {
         final isDark = mode == ThemeMode.dark;
         return IconButton(
+          constraints: BoxConstraints.tight(Size.square(compact ? 36 : 40)),
+          padding: EdgeInsets.zero,
+          visualDensity: VisualDensity.compact,
           tooltip: isDark ? 'Светлая тема' : 'Тёмная тема',
           onPressed: () => context.read<ThemeCubit>().toggle(),
           icon: Icon(
