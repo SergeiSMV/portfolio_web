@@ -52,14 +52,37 @@ jobs:
           if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
             echo "SSH_PRIVATE_KEY is empty"; exit 1
           fi
+          if [ -z "${{ secrets.SSH_PORT }}" ]; then
+            echo "SSH_PORT is empty"; exit 1
+          fi
 
           printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -p "${{ secrets.SSH_PORT }}" -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -T 10 -p "${{ secrets.SSH_PORT }}" -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts || \
+            echo "ssh-keyscan failed, using StrictHostKeyChecking=accept-new during deploy"
+
+      - name: Validate private key format
+        run: |
+          set -euo pipefail
+          ls -la ~/.ssh
+          wc -c ~/.ssh/id_ed25519
+          ssh-keygen -yf ~/.ssh/id_ed25519 >/dev/null
+          echo "KEY_PARSE_OK"
+
+      - name: SSH connectivity test
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/id_ed25519 \
+            -p "${{ secrets.SSH_PORT }}" \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=accept-new \
+            -o ConnectTimeout=15 \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+            "echo CI_SSH_OK"
 
       - name: Deploy via rsync
         run: |
           rsync -avz --delete \
-            -e "ssh -p ${{ secrets.SSH_PORT }}" \
+            -e "ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=accept-new" \
             build/web/ \
             "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${TARGET_PATH}/"
