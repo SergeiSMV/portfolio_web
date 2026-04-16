@@ -1,4 +1,4 @@
-# v 1.0.0.1
+# v 1.0.0.2
 name: Deploy Flutter Web
 
 on:
@@ -69,6 +69,18 @@ jobs:
           wc -c ~/.ssh/id_ed25519
           ssh-keygen -yf ~/.ssh/id_ed25519 >/dev/null
           echo "KEY_PARSE_OK"
+
+      - name: Validate key fingerprint
+        run: |
+          set -euo pipefail
+          EXPECTED_FP="SHA256:K6GcktRUafDiiFUkYkubvqx8rgObOhHX5aDGui4UEzA"
+          ACTUAL_FP="$(ssh-keygen -lf ~/.ssh/id_ed25519 | awk '{print $2}')"
+          echo "CI key fingerprint: ${ACTUAL_FP}"
+          if [ "${ACTUAL_FP}" != "${EXPECTED_FP}" ]; then
+            echo "Fingerprint mismatch. Expected ${EXPECTED_FP}, got ${ACTUAL_FP}"
+            exit 1
+          fi
+          echo "FINGERPRINT_OK"
 
       - name: SSH connectivity test
         run: |
