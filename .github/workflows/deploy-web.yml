@@ -1,4 +1,4 @@
-# v 1.0.0.4
+# v 1.0.0.6
 name: Deploy Flutter Web
 
 on:
@@ -34,7 +34,7 @@ jobs:
         id: branch_path
         run: |
           if [ "${GITHUB_REF_NAME}" = "main" ]; then
-            echo "TARGET_PATH=/home/sergeismv/apps/portfolio" >> $GITHUB_ENV
+            echo "TARGET_PATH=/home/sergeismv/apps/dev" >> $GITHUB_ENV
           else
             echo "TARGET_PATH=/home/sergeismv/apps/webtest" >> $GITHUB_ENV
           fi
@@ -61,41 +61,6 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -T 10 -p "${{ secrets.SSH_PORT }}" -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts || \
             echo "ssh-keyscan failed, using StrictHostKeyChecking=accept-new during deploy"
-
-      - name: Validate private key format
-        run: |
-          set -euo pipefail
-          ls -la ~/.ssh
-          wc -c ~/.ssh/id_ed25519
-          ssh-keygen -yf ~/.ssh/id_ed25519 >/dev/null
-          echo "KEY_PARSE_OK"
-
-      - name: Validate key fingerprint
-        run: |
-          set -euo pipefail
-          EXPECTED_FP="SHA256:K6GcktRUafDiiFUkYkubvqx8rgObOhHX5aDGui4UEzA"
-          ACTUAL_FP="$(ssh-keygen -lf ~/.ssh/id_ed25519 | awk '{print $2}')"
-          echo "CI key fingerprint: ${ACTUAL_FP}"
-          if [ "${ACTUAL_FP}" != "${EXPECTED_FP}" ]; then
-            echo "Fingerprint mismatch. Expected ${EXPECTED_FP}, got ${ACTUAL_FP}"
-            exit 1
-          fi
-          echo "FINGERPRINT_OK"
-
-      - name: SSH connectivity test
-        run: |
-          set -euo pipefail
-          ssh -vvv -i ~/.ssh/id_ed25519 \
-            -p "${{ secrets.SSH_PORT }}" \
-            -o IdentitiesOnly=yes \
-            -o PreferredAuthentications=publickey \
-            -o PasswordAuthentication=no \
-            -o KbdInteractiveAuthentication=no \
-            -o BatchMode=yes \
-            -o StrictHostKeyChecking=accept-new \
-            -o ConnectTimeout=15 \
-            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
-            "echo CI_SSH_OK"
 
       - name: Deploy via rsync
         run: |
