@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/widgets/app_shell.dart';
+import '../widgets/app_shell.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/projects/presentation/pages/project_detail_page.dart';
 import '../../features/projects/presentation/pages/projects_list_page.dart';

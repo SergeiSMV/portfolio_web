@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../app/router/app_routes.dart';
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/responsive/breakpoints.dart';
+import '../../../../core/theme/theme_context_extensions.dart';
 import '../../../../core/widgets/max_width_box.dart';
 
 /// Top hero: badge → huge title → subtitle → primary CTAs.
@@ -12,11 +13,16 @@ class HeroSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final titleSize = context.responsive<double>(
-      mobile: 40,
-      tablet: 64,
-      desktop: 84,
+    final colors = context.colors;
+    final heroTitleStyle = context.responsive<TextStyle>(
+      mobile: context.textStyle.openSansStyles.extraBoldOpenSans40,
+      tablet: context.textStyle.openSansStyles.extraBoldOpenSans64,
+      desktop: context.textStyle.openSansStyles.extraBoldOpenSans84,
+    );
+    final subtitleStyle = context.responsive<TextStyle>(
+      mobile: context.textStyle.openSansStyles.openSans16,
+      tablet: context.textStyle.openSansStyles.openSans18,
+      desktop: context.textStyle.openSansStyles.openSans20,
     );
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -30,25 +36,26 @@ class HeroSection extends StatelessWidget {
             const SizedBox(height: 32),
             Text(
               AppStrings.heroTitleLine1,
-              style: theme.textTheme.displayLarge?.copyWith(
-                fontSize: titleSize,
+              style: heroTitleStyle.copyWith(
                 height: 1.0,
+                color: context.colors.textColors.primary,
+                letterSpacing: -1.5,
               ),
             ),
             const SizedBox(height: 8),
             ShaderMask(
               shaderCallback: (bounds) => LinearGradient(
                 colors: [
-                  theme.colorScheme.primary,
-                  theme.colorScheme.secondary,
+                  colors.mainColors.accent,
+                  colors.mainColors.accentSecondary,
                 ],
               ).createShader(bounds),
               child: Text(
                 AppStrings.heroTitleLine2,
-                style: theme.textTheme.displayLarge?.copyWith(
-                  fontSize: titleSize,
+                style: heroTitleStyle.copyWith(
                   height: 1.0,
-                  color: Colors.white,
+                  color: colors.mainColors.onPrimary,
+                  letterSpacing: -1.5,
                 ),
               ),
             ),
@@ -57,9 +64,9 @@ class HeroSection extends StatelessWidget {
               constraints: const BoxConstraints(maxWidth: 640),
               child: Text(
                 AppStrings.heroSubtitle,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  fontSize: context.responsive(
-                      mobile: 16, tablet: 18, desktop: 20),
+                style: subtitleStyle.copyWith(
+                  color: context.colors.textColors.primary,
+                  height: 1.6,
                 ),
               ),
             ),
@@ -87,7 +94,7 @@ class HeroSection extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    side: BorderSide(color: theme.colorScheme.outline),
+                    side: BorderSide(color: colors.elementColors.divider),
                   ),
                   onPressed: () {},
                   child: const Text(AppStrings.ctaContact),
@@ -106,14 +113,14 @@ class _AvailabilityBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colors = context.colors;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: theme.colorScheme.secondary.withValues(alpha: 0.1),
+        color: colors.mainColors.accentSecondary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(100),
         border: Border.all(
-          color: theme.colorScheme.secondary.withValues(alpha: 0.3),
+          color: colors.mainColors.accentSecondary.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
@@ -124,16 +131,14 @@ class _AvailabilityBadge extends StatelessWidget {
             height: 8,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: theme.colorScheme.secondary,
+              color: colors.mainColors.accentSecondary,
             ),
           ),
           const SizedBox(width: 8),
           Text(
             AppStrings.availabilityBadge,
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: theme.colorScheme.secondary,
-              fontWeight: FontWeight.w600,
-            ),
+            style: context.textStyle.openSansStyles.semiBoldOpenSans12
+                .copyWith(color: colors.mainColors.accentSecondary),
           ),
         ],
       ),

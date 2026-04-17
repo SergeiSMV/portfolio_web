@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/responsive/breakpoints.dart';
+import '../../../../core/theme/theme_context_extensions.dart';
 import '../../../../core/widgets/max_width_box.dart';
 import '../../../../core/widgets/section_header.dart';
 
@@ -36,7 +37,10 @@ class AboutSection extends StatelessWidget {
                       flex: isDesktop ? 3 : 0,
                       child: Text(
                         AppStrings.aboutBody,
-                        style: Theme.of(context).textTheme.bodyLarge,
+                        style: context.textStyle.openSansStyles.openSans16.copyWith(
+                          color: context.colors.textColors.primary,
+                          height: 1.6,
+                        ),
                       ),
                     ),
                     SizedBox(
@@ -88,7 +92,6 @@ class _StatItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -96,9 +99,10 @@ class _StatItem extends StatelessWidget {
           width: 96,
           child: Text(
             value,
-            style: theme.textTheme.displaySmall?.copyWith(
-              color: theme.colorScheme.primary,
-              fontWeight: FontWeight.w800,
+            style: context.textStyle.openSansStyles.extraBoldOpenSans36.copyWith(
+              color: context.colors.mainColors.accent,
+              letterSpacing: -0.5,
+              height: 1.15,
             ),
           ),
         ),
@@ -108,7 +112,10 @@ class _StatItem extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 8),
             child: Text(
               label,
-              style: theme.textTheme.bodyMedium,
+              style: context.textStyle.openSansStyles.openSans14.copyWith(
+                color: context.colors.textColors.secondary,
+                height: 1.6,
+              ),
             ),
           ),
         ),

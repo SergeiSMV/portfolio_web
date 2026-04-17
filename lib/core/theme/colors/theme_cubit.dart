@@ -18,7 +18,7 @@ class ThemeCubit extends Cubit<ThemeMode> {
         emit(ThemeMode.dark);
       }
     } catch (_) {
-      // Safe to ignore — fall back to default.
+      null;
     }
   }
 
