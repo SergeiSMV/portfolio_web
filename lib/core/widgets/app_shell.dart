@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../app/router/app_routes.dart';
-import '../../app/theme/theme_cubit.dart';
+import '../router/app_routes.dart';
+import '../theme/colors/theme_cubit.dart';
+import '../theme/theme_context_extensions.dart';
 import '../constants/app_strings.dart';
 import '../responsive/breakpoints.dart';
 
@@ -115,7 +116,7 @@ class _Logo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colors = context.colors;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -132,8 +133,8 @@ class _Logo extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    theme.colorScheme.primary,
-                    theme.colorScheme.secondary,
+                    colors.mainColors.accent,
+                    colors.mainColors.accentSecondary,
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -143,10 +144,8 @@ class _Logo extends StatelessWidget {
               child: Center(
                 child: Text(
                   AppStrings.brandShort,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: context.textStyle.openSansStyles.extraBoldOpenSans16
+                      .copyWith(color: colors.mainColors.onPrimary),
                 ),
               ),
             ),
@@ -154,7 +153,8 @@ class _Logo extends StatelessWidget {
             if (!context.isMobile)
               Text(
                 AppStrings.authorName,
-                style: theme.textTheme.titleMedium,
+                style: context.textStyle.openSansStyles.semiBoldOpenSans16
+                    .copyWith(color: context.colors.textColors.primary),
               ),
           ],
         ),
@@ -177,7 +177,7 @@ class _NavLinkState extends State<_NavLink> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colors = context.colors;
     return MouseRegion(
       onEnter: (_) => setState(() => _hover = true),
       onExit: (_) => setState(() => _hover = false),
@@ -186,12 +186,10 @@ class _NavLinkState extends State<_NavLink> {
         onTap: widget.onTap,
         child: Text(
           widget.label,
-          style: theme.textTheme.titleSmall?.copyWith(
-            color: _hover
-                ? theme.colorScheme.primary
-                : theme.colorScheme.onSurface,
-            fontWeight: FontWeight.w500,
-          ),
+          style: context.textStyle.openSansStyles.mediumOpenSans14.copyWith(
+              color: _hover
+                  ? colors.mainColors.accent
+                  : colors.textColors.primary),
         ),
       ),
     );
@@ -231,9 +229,8 @@ class _MobileDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Drawer(
-      backgroundColor: theme.colorScheme.surface,
+      backgroundColor: context.colors.mainColors.surface,
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),

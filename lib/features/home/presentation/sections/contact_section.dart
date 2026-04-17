@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/responsive/breakpoints.dart';
+import '../../../../core/theme/theme_context_extensions.dart';
 import '../../../../core/widgets/max_width_box.dart';
 import '../../../../core/widgets/section_header.dart';
 
@@ -11,7 +12,7 @@ class ContactSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colors = context.colors;
     return Padding(
       padding: EdgeInsets.symmetric(
         vertical: context.responsive(mobile: 56, tablet: 80, desktop: 120),
@@ -27,12 +28,12 @@ class ContactSection extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                theme.colorScheme.primary.withValues(alpha: 0.12),
-                theme.colorScheme.secondary.withValues(alpha: 0.04),
+                colors.mainColors.accent.withValues(alpha: 0.12),
+                colors.mainColors.accentSecondary.withValues(alpha: 0.04),
               ],
             ),
             border: Border.all(
-              color: theme.colorScheme.primary.withValues(alpha: 0.35),
+              color: colors.mainColors.accent.withValues(alpha: 0.35),
             ),
           ),
           child: Column(

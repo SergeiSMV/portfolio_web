@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/responsive/breakpoints.dart';
+import '../../../../core/theme/theme_context_extensions.dart';
 import '../../../../core/widgets/max_width_box.dart';
 import '../../../../core/widgets/section_header.dart';
 import '../../../../core/widgets/tag_chip.dart';
@@ -103,24 +104,23 @@ class _SkillGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colors = context.colors;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: colors.mainColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.outline),
+        border: Border.all(color: colors.elementColors.divider),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title.toUpperCase(),
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: theme.colorScheme.primary,
-              letterSpacing: 2,
-              fontWeight: FontWeight.w600,
-            ),
+            style: context.textStyle.openSansStyles.semiBoldOpenSans11.copyWith(
+                  color: colors.mainColors.accent,
+                  letterSpacing: 2,
+                ),
           ),
           const SizedBox(height: 16),
           Wrap(
