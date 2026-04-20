@@ -5,7 +5,7 @@ role: Senior Flutter Developer
 period: 2026 - настоящее время
 client: НПО "Компас" (Stark)
 summary: Кроссплатформенное Flutter-приложение для BLE-мониторинга BMS (JK, Daly и др.) с нативным Android BLE-каналом для сложных устройств, дашбордом телеметрии и локальным хранением пользовательских настроек.
-cover: assets/projects/compass-ble/images/hero.jpg
+cover: assets/projects/compass-ble/images/1234.png
 tags: [mobile, flutter, ble, bms, iot, monitoring]
 stack:
   - Flutter

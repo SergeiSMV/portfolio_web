@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/theme/colors/base_colors.dart';
+import '../../../../core/theme/theme_context_extensions.dart';
 import '../../domain/entities/project.dart';
 
 /// Side panel with structured project metadata displayed on the detail page.
@@ -11,25 +13,25 @@ class ProjectMetaPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colors = context.colors;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: colors.mainColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.outline),
+        border: Border.all(color: colors.elementColors.divider),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _row(theme, 'Роль', project.role),
-          _row(theme, 'Период', project.period),
+          _row(context, colors, 'Роль', project.role),
+          _row(context, colors, 'Период', project.period),
           if (project.client != null && project.client!.isNotEmpty)
-            _row(theme, 'Клиент', project.client!),
+            _row(context, colors, 'Клиент', project.client!),
           if (project.platforms.isNotEmpty)
-            _row(theme, 'Платформы', project.platforms.join(', ')),
+            _row(context, colors, 'Платформы', project.platforms.join(', ')),
           const SizedBox(height: 8),
-          _label(theme, 'Стек'),
+          _label(context, colors, 'Стек'),
           const SizedBox(height: 8),
           Wrap(
             spacing: 6,
@@ -40,14 +42,14 @@ class ProjectMetaPanel extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.surfaceContainerHighest,
+                      color: colors.mainColors.surfaceAlt,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
                       s,
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: context.textStyle.openSansStyles
+                          .mediumOpenSans11
+                          .copyWith(color: context.colors.textColors.secondary),
                     ),
                   ),
                 )
@@ -55,7 +57,7 @@ class ProjectMetaPanel extends StatelessWidget {
           ),
           if (project.links.isNotEmpty) ...[
             const SizedBox(height: 24),
-            _label(theme, 'Ссылки'),
+            _label(context, colors, 'Ссылки'),
             const SizedBox(height: 8),
             ...project.links.map((link) => _LinkRow(link: link)),
           ],
@@ -64,18 +66,19 @@ class ProjectMetaPanel extends StatelessWidget {
     );
   }
 
-  Widget _row(ThemeData theme, String label, String value) {
+  Widget _row(BuildContext context, BaseColors colors, String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _label(theme, label),
+          _label(context, colors, label),
           const SizedBox(height: 4),
           Text(
             value,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface,
+            style: context.textStyle.openSansStyles.openSans14.copyWith(
+              color: colors.textColors.primary,
+              height: 1.6,
             ),
           ),
         ],
@@ -83,13 +86,12 @@ class ProjectMetaPanel extends StatelessWidget {
     );
   }
 
-  Widget _label(ThemeData theme, String text) {
+  Widget _label(BuildContext context, BaseColors colors, String text) {
     return Text(
       text.toUpperCase(),
-      style: theme.textTheme.labelSmall?.copyWith(
-        color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
+      style: context.textStyle.openSansStyles.semiBoldOpenSans11.copyWith(
+        color: colors.textColors.primary.withValues(alpha: 0.55),
         letterSpacing: 1.5,
-        fontWeight: FontWeight.w600,
       ),
     );
   }
@@ -102,7 +104,7 @@ class _LinkRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colors = context.colors;
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: InkWell(
@@ -119,17 +121,17 @@ class _LinkRow extends StatelessWidget {
               link.isHttp ? Icons.north_east : Icons.link_off,
               size: 14,
               color: link.isHttp
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                  ? colors.mainColors.accent
+                  : colors.textColors.primary.withValues(alpha: 0.4),
             ),
             const SizedBox(width: 8),
             Flexible(
               child: Text(
                 '${link.label}: ${link.url}',
-                style: theme.textTheme.labelMedium?.copyWith(
+                style: context.textStyle.openSansStyles.mediumOpenSans12.copyWith(
                   color: link.isHttp
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                      ? colors.mainColors.accent
+                      : colors.textColors.primary.withValues(alpha: 0.5),
                 ),
                 overflow: TextOverflow.ellipsis,
               ),

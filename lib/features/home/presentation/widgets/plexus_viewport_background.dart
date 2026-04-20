@@ -26,10 +26,17 @@ class _PlexusViewportBackgroundState extends State<PlexusViewportBackground>
   /// вызывает [paint].
   late final AnimationController _tick;
 
-  /// Список частиц фиксируется один раз в [initState] (стабильная сеть).
+  /// Список частиц фиксируется один раз (стабильная сеть).
+  ///
+  /// Почему не в `initState`:
+  /// - нам нужен `MediaQuery`/брейкпоинты через `context.screenSize`,
+  ///   а это корректно читать в `didChangeDependencies`.
   late final List<_Particle> _particles;
+
+  /// Защита от повторной генерации при повторных вызовах `didChangeDependencies`.
   bool _particlesInitialized = false;
 
+  /// Упрощённая адаптация под мобильные экраны (кол-во частиц и пороги связей).
   late bool _isMobile;
 
   @override
@@ -47,9 +54,17 @@ class _PlexusViewportBackgroundState extends State<PlexusViewportBackground>
     super.didChangeDependencies();
     _isMobile = context.screenSize == ScreenSize.mobile;
     if (_particlesInitialized) return;
+
     // Здесь уже безопасно читать MediaQuery через context.screenSize.
+    //
+    // Фиксированный seed нужен для воспроизводимости:
+    // при одинаковых входных данных сеть будет одинаковой между перезапусками.
     final rnd = math.Random(42);
-    // Первый аргумент List.generate — количество частиц (нагрузка ~ n² на рёбра).
+
+    // Первый аргумент List.generate — количество частиц.
+    //
+    // Важно: дальше в painter'е соединение идёт попарно → сложность ~ O(n²).
+    // Поэтому на mobile держим n поменьше, на desktop — побольше.
     _particles = _getParticles(context, rnd);
     _particlesInitialized = true;
   }
@@ -88,6 +103,7 @@ class _PlexusViewportBackgroundState extends State<PlexusViewportBackground>
     } else {
       if (!_tick.isAnimating) _tick.repeat();
     }
+
     // От темы зависят цвета фона, линий и узлов.
     final brightness = Theme.of(context).brightness;
 
@@ -183,7 +199,7 @@ class _PlexusPainter extends CustomPainter {
     // Секунды с эпохи; при animate == false зафиксируем кадр в t = 0.
     final now = animate ? DateTime.now().millisecondsSinceEpoch / 1000.0 : 0.0;
 
-    /// Множитель к [now]: меньше → медленнее дрейф частиц (см. [_Particle.at]).
+    // Множитель к [now]: меньше → медленнее дрейф частиц (см. [_Particle.at]).
     final tMotion = now * 0.2;
 
     final isDark = brightness == Brightness.dark;
@@ -222,7 +238,12 @@ class _PlexusPainter extends CustomPainter {
     final positions = particles.map((p) => p.at(tMotion, size)).toList();
 
     // Макс. длина ребра в px: если расстояние между парой меньше — рисуем линию.
-    // Зависит от [size.shortestSide] — на мобиле чуть меньше порог, на десктопе больше.
+    //
+    // Формула:
+    // - базовый порог зависит от mobile/desktop;
+    // - масштабируется относительно `shortestSide`, чтобы сеть выглядела похоже
+    //   на разных диагоналях/разрешениях;
+    // - clamp ограничивает экстремумы, чтобы не получить слишком плотную/редкую сеть.
     final connect = ((isMobile ? 90 : 300) * (size.shortestSide / 720)).clamp(
       80.0,
       158.0,
@@ -244,13 +265,17 @@ class _PlexusPainter extends CustomPainter {
       for (var j = i + 1; j < positions.length; j++) {
         final d = (positions[i] - positions[j]).distance;
         if (d >= connect) continue;
+
         // edge = 1 у самых близких соседей, → 0 у порога [connect].
         final edge = 1.0 - (d / connect);
+
         // Чуть выпрямляем кривую «яркость vs расстояние» (степень < квадрата).
         final shaped = math.pow(edge, 1.08).toDouble();
-        // Итоговая альфа линии: множители 0.48 / 0.26 — «громкость» сети в теме;
-        // clamp верх — чтобы дальние рёбра не перебивали контент.
-        /// ИСПРАВЛЕНА ПРОЗРАЧНОСТЬ
+
+        // Итоговая альфа линии:
+        // - `shaped` делает ближние рёбра ярче;
+        // - множитель зависит от темы (в dark сеть обычно должна быть тише);
+        // - clamp сверху ограничивает максимальную «громкость» сети.
         final a = (shaped * (isDark ? 0.1 : 0.26)).clamp(0.0, 0.62);
 
         linePaint.color = lineBase.withValues(alpha: a);
@@ -263,13 +288,11 @@ class _PlexusPainter extends CustomPainter {
     final glow = Paint()..style = PaintingStyle.fill;
     for (final o in positions) {
       // Внешний полупрозрачный диск — «ореол».
-      /// ИСПРАВЛЕНА ПРОЗРАЧНОСТЬ
       glow.color = nodeColor.withValues(alpha: isDark ? 0.05 : 0.08);
-
       canvas.drawCircle(o, nodeR * 2.4, glow);
-      // Яркое ядро точки. ИСПРАВЛЕНА ПРОЗРАЧНОСТЬ
-      glow.color = nodeColor.withValues(alpha: isDark ? 0.15 : 0.35);
 
+      // Яркое ядро точки.
+      glow.color = nodeColor.withValues(alpha: isDark ? 0.15 : 0.35);
       canvas.drawCircle(o, nodeR, glow);
     }
   }

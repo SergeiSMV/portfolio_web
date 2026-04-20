@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/theme_context_extensions.dart';
+
 /// Lightweight pill-shaped chip used for tags, stack items and filters.
 class TagChip extends StatelessWidget {
   const TagChip({
@@ -10,23 +12,33 @@ class TagChip extends StatelessWidget {
     this.icon,
   });
 
+  /// Текст внутри чипа.
   final String label;
+
+  /// Обработчик нажатия; если `null`, чип используется как статичный элемент.
   final VoidCallback? onTap;
+
+  /// Флаг активного/выбранного состояния.
   final bool selected;
+
+  /// Опциональная иконка слева от текста.
   final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colors = context.colors;
+    // Цвет текста/иконки зависит от выбора, чтобы активный чип был заметнее.
     final Color foreground = selected
-        ? theme.colorScheme.primary
-        : theme.colorScheme.onSurface.withValues(alpha: 0.72);
+        ? colors.mainColors.accent
+        : colors.textColors.primary.withValues(alpha: 0.72);
+    // Для выбранного состояния используем легкий tint от акцентного цвета.
     final Color background = selected
-        ? theme.colorScheme.primary.withValues(alpha: 0.12)
-        : theme.colorScheme.surfaceContainerHighest;
+        ? colors.mainColors.accent.withValues(alpha: 0.12)
+        : colors.mainColors.surfaceAlt;
 
     return Material(
-      color: Colors.transparent,
+      // Прозрачный Material нужен, чтобы корректно рендерился ripple от InkWell.
+      color: colors.mainColors.background.withValues(alpha: 0),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(100),
@@ -37,8 +49,8 @@ class TagChip extends StatelessWidget {
             borderRadius: BorderRadius.circular(100),
             border: Border.all(
               color: selected
-                  ? theme.colorScheme.primary.withValues(alpha: 0.45)
-                  : theme.colorScheme.outline,
+                  ? colors.mainColors.accent.withValues(alpha: 0.45)
+                  : colors.elementColors.divider,
             ),
           ),
           child: Row(
@@ -50,10 +62,9 @@ class TagChip extends StatelessWidget {
               ],
               Text(
                 label,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: foreground,
-                  fontWeight: FontWeight.w500,
-                ),
+                // Размер/вес берем из дизайн-системы, динамически меняем только цвет.
+                style: context.textStyle.openSansStyles.mediumOpenSans12
+                    .copyWith(color: foreground),
               ),
             ],
           ),

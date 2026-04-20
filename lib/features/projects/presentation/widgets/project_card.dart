@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../app/router/app_routes.dart';
+import '../../../../core/theme/colors/base_colors.dart';
+import '../../../../core/router/app_routes.dart';
+import '../../../../core/theme/theme_context_extensions.dart';
 import '../../../../core/widgets/tag_chip.dart';
 import '../../domain/entities/project.dart';
 
@@ -20,7 +22,7 @@ class _ProjectCardState extends State<ProjectCard> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colors = context.colors;
     final p = widget.project;
 
     return MouseRegion(
@@ -32,18 +34,17 @@ class _ProjectCardState extends State<ProjectCard> {
         curve: Curves.easeOut,
         transform: Matrix4.translationValues(0, _hover ? -4 : 0, 0),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
+          color: colors.mainColors.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: _hover
-                ? theme.colorScheme.primary.withValues(alpha: 0.55)
-                : theme.colorScheme.outline,
+                ? colors.mainColors.accent.withValues(alpha: 0.55)
+                : colors.elementColors.divider,
           ),
           boxShadow: _hover
               ? [
                   BoxShadow(
-                    color:
-                        theme.colorScheme.primary.withValues(alpha: 0.15),
+                    color: colors.mainColors.accent.withValues(alpha: 0.15),
                     blurRadius: 24,
                     offset: const Offset(0, 12),
                   ),
@@ -51,7 +52,7 @@ class _ProjectCardState extends State<ProjectCard> {
               : null,
         ),
         child: Material(
-          color: Colors.transparent,
+          color: colors.mainColors.background.withValues(alpha: 0),
           child: InkWell(
             borderRadius: BorderRadius.circular(20),
             onTap: () =>
@@ -67,23 +68,29 @@ class _ProjectCardState extends State<ProjectCard> {
                     children: [
                       Text(
                         p.period,
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: theme.colorScheme.primary,
-                          letterSpacing: 2,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: context.textStyle.openSansStyles
+                            .semiBoldOpenSans11
+                            .copyWith(
+                              color: colors.mainColors.accent,
+                              letterSpacing: 2,
+                            ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         p.title,
-                        style: theme.textTheme.titleLarge,
+                        style: context.textStyle.openSansStyles
+                            .semiBoldOpenSans22
+                            .copyWith(color: context.colors.textColors.primary),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 12),
                       Text(
                         p.summary,
-                        style: theme.textTheme.bodyMedium,
+                        style: context.textStyle.openSansStyles.openSans14.copyWith(
+                          color: context.colors.textColors.secondary,
+                          height: 1.6,
+                        ),
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -115,31 +122,31 @@ class _CoverImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colors = context.colors;
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(19)),
       child: AspectRatio(
         aspectRatio: 16 / 9,
         child: cover == null
-            ? _placeholder(theme)
+            ? _placeholder(colors)
             : Image.asset(
                 cover!,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stack) => _placeholder(theme),
+                errorBuilder: (context, error, stack) => _placeholder(colors),
               ),
       ),
     );
   }
 
-  Widget _placeholder(ThemeData theme) {
+  Widget _placeholder(BaseColors colors) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            theme.colorScheme.primary.withValues(alpha: 0.18),
-            theme.colorScheme.secondary.withValues(alpha: 0.08),
+            colors.mainColors.accent.withValues(alpha: 0.18),
+            colors.mainColors.accentSecondary.withValues(alpha: 0.08),
           ],
         ),
       ),
@@ -147,7 +154,7 @@ class _CoverImage extends StatelessWidget {
         child: Icon(
           Icons.flutter_dash,
           size: 64,
-          color: theme.colorScheme.primary.withValues(alpha: 0.55),
+          color: colors.mainColors.accent.withValues(alpha: 0.55),
         ),
       ),
     );

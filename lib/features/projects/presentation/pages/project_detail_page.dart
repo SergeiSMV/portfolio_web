@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../app/router/app_routes.dart';
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/responsive/breakpoints.dart';
+import '../../../../core/theme/theme_context_extensions.dart';
 import '../../../../core/widgets/max_width_box.dart';
 import '../../../../core/widgets/tag_chip.dart';
 import '../../domain/entities/project.dart';
@@ -86,7 +87,11 @@ class _Loaded extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final titleStyle = context.responsive<TextStyle>(
+      mobile: context.textStyle.openSansStyles.extraBoldOpenSans38,
+      tablet: context.textStyle.openSansStyles.extraBoldOpenSans56,
+      desktop: context.textStyle.openSansStyles.extraBoldOpenSans68,
+    );
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 48),
@@ -102,12 +107,10 @@ class _Loaded extends StatelessWidget {
               const SizedBox(height: 24),
               Text(
                 project.title,
-                style: theme.textTheme.displayMedium?.copyWith(
-                  fontSize: context.responsive(
-                    mobile: 38,
-                    tablet: 56,
-                    desktop: 68,
-                  ),
+                style: titleStyle.copyWith(
+                  color: context.colors.textColors.primary,
+                  letterSpacing: -1.0,
+                  height: 1.1,
                 ),
               ),
               const SizedBox(height: 16),
@@ -115,7 +118,10 @@ class _Loaded extends StatelessWidget {
                 constraints: const BoxConstraints(maxWidth: 720),
                 child: Text(
                   project.summary,
-                  style: theme.textTheme.bodyLarge?.copyWith(fontSize: 18),
+                  style: context.textStyle.openSansStyles.openSans18.copyWith(
+                    color: context.colors.textColors.primary,
+                    height: 1.6,
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
