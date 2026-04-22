@@ -73,15 +73,51 @@ class $AssetsProjectsTorpedoGen {
 class $AssetsProjectsCompassBleImagesGen {
   const $AssetsProjectsCompassBleImagesGen();
 
-  /// File path: assets/projects/compass-ble/images/ble_enabler.png
-  AssetGenImage get bleEnabler =>
-      const AssetGenImage('assets/projects/compass-ble/images/ble_enabler.png');
+  /// File path: assets/projects/compass-ble/images/ScanDevicesUseCase.png
+  AssetGenImage get scanDevicesUseCase =>
+      const AssetGenImage('assets/projects/compass-ble/images/ScanDevicesUseCase.png');
 
-  /// File path: assets/projects/compass-ble/images/hero.jpg
-  AssetGenImage get hero => const AssetGenImage('assets/projects/compass-ble/images/hero.jpg');
+  /// File path: assets/projects/compass-ble/images/ci_1.png
+  AssetGenImage get ci1 => const AssetGenImage('assets/projects/compass-ble/images/ci_1.png');
+
+  /// File path: assets/projects/compass-ble/images/ci_2.png
+  AssetGenImage get ci2 => const AssetGenImage('assets/projects/compass-ble/images/ci_2.png');
+
+  /// File path: assets/projects/compass-ble/images/cover.jpg
+  AssetGenImage get cover => const AssetGenImage('assets/projects/compass-ble/images/cover.jpg');
+
+  /// File path: assets/projects/compass-ble/images/getConnector.png
+  AssetGenImage get getConnector =>
+      const AssetGenImage('assets/projects/compass-ble/images/getConnector.png');
+
+  /// File path: assets/projects/compass-ble/images/nativeBleManager.png
+  AssetGenImage get nativeBleManager =>
+      const AssetGenImage('assets/projects/compass-ble/images/nativeBleManager.png');
+
+  /// File path: assets/projects/compass-ble/images/nativeSetup.png
+  AssetGenImage get nativeSetup =>
+      const AssetGenImage('assets/projects/compass-ble/images/nativeSetup.png');
+
+  /// File path: assets/projects/compass-ble/images/requestEnableBluetooth.png
+  AssetGenImage get requestEnableBluetooth =>
+      const AssetGenImage('assets/projects/compass-ble/images/requestEnableBluetooth.png');
+
+  /// File path: assets/projects/compass-ble/images/scanFilterUuids.png
+  AssetGenImage get scanFilterUuids =>
+      const AssetGenImage('assets/projects/compass-ble/images/scanFilterUuids.png');
 
   /// List of all assets
-  List<AssetGenImage> get values => [bleEnabler, hero];
+  List<AssetGenImage> get values => [
+    scanDevicesUseCase,
+    ci1,
+    ci2,
+    cover,
+    getConnector,
+    nativeBleManager,
+    nativeSetup,
+    requestEnableBluetooth,
+    scanFilterUuids,
+  ];
 }
 
 class $AssetsProjectsTorpedoImagesGen {
@@ -94,8 +130,11 @@ class $AssetsProjectsTorpedoImagesGen {
   AssetGenImage get bleEnabler =>
       const AssetGenImage('assets/projects/torpedo/images/ble_enabler.png');
 
+  /// File path: assets/projects/torpedo/images/cover.png
+  AssetGenImage get cover => const AssetGenImage('assets/projects/torpedo/images/cover.png');
+
   /// List of all assets
-  List<AssetGenImage> get values => [a1234, bleEnabler];
+  List<AssetGenImage> get values => [a1234, bleEnabler, cover];
 }
 
 class Assets {
