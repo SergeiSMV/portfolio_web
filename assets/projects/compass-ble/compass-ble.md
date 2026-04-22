@@ -5,7 +5,7 @@ role: Senior Flutter Developer
 period: 2026 - настоящее время
 client: НПО "Компас" (Stark)
 summary: Кроссплатформенное Flutter-приложение для BLE-мониторинга BMS (JK, Daly и др.) с нативным Android BLE-каналом для сложных устройств, дашбордом телеметрии и локальным хранением пользовательских настроек.
-cover: assets/projects/compass-ble/images/hero.jpg
+cover: assets/projects/compass-ble/images/cover.jpg
 tags: [mobile, flutter, ble, bms, iot, monitoring]
 stack:
   - Flutter
@@ -42,7 +42,7 @@ order: 1
 #### 1. Базовая структура и инфраструктура
    - формирование структуры модулей приложения;
    - подключение ассетов и шрифтов;
-   - добавление GitHub Actions CI.
+   - добавление _GitHub_ _Actions_ _CI_.
 
 #### 2. Домен и данные
    - введение сущностей BMS и enum-моделей;
@@ -76,58 +76,66 @@ order: 1
 
 ## Решение
 Реализована модульная архитектура с разделением ответственности по слоям:
-- ***presentation*** - страницы, виджеты, BLoC/Cubit;
+- ***presentation*** - страницы, виджеты, _BLoC_ / _Cubit_;
 - ***domain*** - сущности, контракты и use cases;
 - ***data*** - реализация репозиториев, протоколы, BLE-коннекторы, локальная БД;
 - ***core*** - DI, логирование, константы, генерируемые ресурсы, платформенные абстракции.
 Ключевые технические решения:
 - единый BLoC-пайплайн для BLE состояния и пользовательских потоков;
 - обособленные коннекторы под разные устройства/протоколы;
-- fallback/special-case сценарии через platform channels там, где стандартного BLE-плагина недостаточно;
+- fallback/special-case сценарии через _platform_ _channels_ там, где стандартного BLE-плагина недостаточно;
 - хранение пользовательских данных (например, custom name устройств) в локальной БД;
 - централизованная инициализация зависимостей и логирования.
 
 ## Детальная структура модулей
 - **Core**
-  - DI (get_it, injectable), logger (talker), constants/enums, theme, generated assets/strings.
+  - DI (_get_it_, _injectable_), logger (_talker_), constants/enums, theme, generated assets/strings.
 - **Data**
   - BLE connectors (ble_device_connector, jk_dual_char_connector);
   - protocol parsers (ffe0, fff0, packet assembler, protocol factory);
   - repositories (ble_data_source_impl, bms_repository_impl);
-  - local DB (drift).
+  - local DB (_drift_).
+
+
+![BLE Enabler](assets/projects/compass-ble/images/getConnector.png)
+
+
 - **Domain**
   - entities: snapshot, errors, cells, devices;
   - repositories interfaces;
   - use cases: scan, connect, disconnect, observe status, stream device, enable bluetooth, rename device.
+
+![BLE Enabler](assets/projects/compass-ble/images/ScanDevicesUseCase.png)
+
+
 - **Presentation**
   - pages: splash, permissions, scan, dashboard;
   - blocs: ble_status, scan, device_manager, device_monitor, root_page_index;
   - widgets: scan cards/lists, dashboard sections, gauges, error indicators, rename dialogs.
 
 ## Platform Channels (детально)
-В проекте есть осознанное использование platform channels для сценариев, где нужен контроль над нативным BLE-поведением.
+В проекте есть осознанное использование _platform_ _channels_ для сценариев, где нужен контроль над нативным BLE-поведением.
 
 #### 1. BLE Enabler channel
+Назначение: инициировать системный сценарий включения Bluetooth без выхода из приложения.
 - Channel: com.compass.stark/ble_enabler
 - Тип: MethodChannel
-- Dart: lib/core/platform/ble_enabler.dart
 - Android: MainActivity.kt (BluetoothAdapter.ACTION_REQUEST_ENABLE)
 - iOS: AppDelegate.swift (CBCentralManagerOptionShowPowerAlertKey)
 
-![BLE Enabler](assets/projects/compass-ble/images/ble_enabler.png)
-
-Назначение: инициировать системный сценарий включения Bluetooth без выхода из приложения.
+![BLE Enabler](assets/projects/compass-ble/images/requestEnableBluetooth.png)
 
 #### 2. Native BLE manager channels (Android-only)
-- Method channel: com.compass.stark/native_ble
-- Event channel: com.compass.stark/native_ble_notify
-- Dart wrapper: lib/core/platform/native_ble_manager.dart
+
+- Method channel: _com.compass.stark/native_ble_
+- Event channel: _com.compass.stark/native_ble_notify_
 - Android implementation:
-  - android/app/src/main/kotlin/com/compass/stark/MainActivity.kt
-  - android/app/src/main/kotlin/com/compass/stark/NativeBleManager.kt
+  - _android/app/src/main/kotlin/com/compass/stark/MainActivity.kt_
+  - _android/app/src/main/kotlin/com/compass/stark/NativeBleManager.kt_
+
+![BLE Manager](assets/projects/compass-ble/images/nativeBleManager.png)
 
 Назначение: полный нативный BLE-цикл для проблемных устройств с неоднозначными/дублирующимися characteristic UUID:
-
 - connect
 - request MTU
 - discover + setup notify/write
@@ -142,6 +150,10 @@ order: 1
 ## Что реализовано по функционалу
 - Экран разрешений и onboarding-переход в основной поток.
 - BLE-сканирование устройств со списком результатов.
+
+![BLE Manager](assets/projects/compass-ble/images/scanFilterUuids.png)
+
+
 - Управление подключением/отключением + отображение connection state.
 - Дашборд с телеметрией BMS:
   - секция температур;
@@ -166,45 +178,52 @@ order: 1
   - Flutter SDK stable в CI (3.24.x)
   - Dart SDK ^3.10.4
 - **State management**
-  - flutter_bloc, equatable
+  - _flutter_bloc_, _equatable_
 - **Dependency injection**
-  - get_it, injectable
+  - _et_it_, _injectable_
 - **BLE**
-  - flutter_reactive_ble
-  - Platform channels + Kotlin native BLE manager (Android)
+  - _flutter_reactive_ble_
+  - _Platform_ _channels_ + _Kotlin_ native BLE manager (Android)
 - **Data layer**
-  - drift, drift_flutter, path_provider
+  - _drift_, _drift_flutter_, _path_provider_
 - **FP/error handling**
-  - either_dart
+  - _either_dart_
 - **Logging/observability**
-  - talker_flutter, talker_bloc_logger
+  - _talker_flutter_, _talker_bloc_logger_
 - **Localization/codegen**
-  - slang, slang_flutter
-  - build_runner, drift_dev, flutter_gen
+  - _slang_, _slang_flutter_
+  - _build_runner_, _drift_dev_, _flutter_gen_
 - **UI/UX packages**
-  - google_nav_bar, material_design_icons_flutter, lottie,
-    loading_animation_widget, animated_text_kit, animated_snack_bar
+  - _google_nav_bar_, _material_design_icons_flutter_, _lottie_,
+    _loading_animation_widget_, _animated_text_kit_, _animated_snack_bar_
 - **CI/CD**
-  - GitHub Actions:
+  - _GitHub_ _Actions_:
     - dart format --set-exit-if-changed .
     - flutter analyze
     - flutter test
     - flutter build apk --release
     - публикация APK артефакта
 
+![BLE Manager](assets/projects/compass-ble/images/ci_1.png)
+
+![BLE Manager](assets/projects/compass-ble/images/ci_2.png)
+
 ## Роль и зона ответственности
 Полный цикл Flutter-разработки в проекте:
 - проектирование архитектуры и слоёв;
 - реализация BLE-сценариев и протокольной интеграции;
 - разработка UI и пользовательских потоков;
-- нативная интеграция через platform channels (Android/Kotlin, iOS/Swift);
-- настройка CI и quality gates;
+- нативная интеграция через _platform_ _channels_ (Android/Kotlin, iOS/Swift);
+- настройка _CI_ и quality gates;
 - рефакторинг и техническая стабилизация при росте функциональности.
 
 ## Ограничения и технические нюансы
 - BLE-поведение заметно различается между Android/iOS, часть логики платформо-специфична.
 - Для отдельных устройств требуется нативный Android путь из-за особенностей характеристик.
 - Реальная валидация BLE-сценариев требует тестов на физических устройствах.
+
+![BLE Manager](assets/projects/compass-ble/images/nativeSetup.png)
+
 
 ## Дальнейшие шаги
 - Расширение матрицы поддерживаемых BMS-протоколов.

@@ -1,24 +1,25 @@
 ---
-slug: compass-ble
-title: Compass BLE
+slug: torpedo-nn-mobile
+title: Torpedo NN Mobile
 role: Senior Flutter Developer
-period: 2026 - настоящее время
-client: НПО "Компас" (Stark)
-summary: Кроссплатформенное Flutter-приложение для BLE-мониторинга BMS (JK, Daly и др.) с нативным Android BLE-каналом для сложных устройств, дашбордом телеметрии и локальным хранением пользовательских настроек.
-cover: assets/projects/compass-ble/images/1234.png
-tags: [mobile, flutter, ble, bms, iot, monitoring]
+period: 2025
+client: ХК Торпедо
+summary: Кроссплатформенное Flutter-приложение для болельщиков ХК Торпедо с матч-центром, билетами, медиа-контентом, личным кабинетом, push-уведомлениями и in-arena сервисами.
+cover: assets/projects/torpedo/images/cover.png
+tags: [mobile, flutter, sports, tickets, media, fan-app]
 stack:
   - Flutter
   - Dart
   - flutter_bloc
   - get_it
   - injectable
-  - flutter_reactive_ble
+  - auto_route
+  - Dio
   - Drift
+  - Firebase (Analytics, Crashlytics, Messaging)
+  - VK ID SDK
+  - Live Activities
   - Slang
-  - GitHub Actions
-  - Kotlin
-  - Swift
 platforms: [Android, iOS]
 links:
   github: https://github.com/SergeiSMV
@@ -27,187 +28,165 @@ order: 1
 ---
 
 ## Задача
-Единое мобильное приложение для работы с Bluetooth Low Energy BMS-устройствами:
-- быстрое и стабильное сканирование BLE-устройств;
-- безопасное подключение/отключение и отображение статуса соединения;
-- визуализация ключевой телеметрии батареи в реальном времени (ячейки, температура, ошибки, остаток заряда, заряд/разряд);
-- поддержка разных линеек BMS с разными протоколами и особенностями BLE-реализации;
-- удобный UX для системных разрешений и включения Bluetooth;
-- готовность к росту: расширяемая архитектура, CI-проверки, поддерживаемый код.
+Единое мобильное приложение клуба для ежедневных сценариев болельщика:
+- новости, медиа и матч-центр в одном интерфейсе;
+- покупка/просмотр билетов и управление пользовательскими тикетами;
+- персональный профиль и настройки уведомлений;
+- in-arena сценарии (навигация, QR, мои заказы);
+- стабильная работа с аналитикой, push-уведомлениями и crash-репортингом.
 
-Бизнес-контекст: приложение используется как инженерный/операционный инструмент для диагностики и мониторинга аккумуляторных систем через BLE в полевых условиях.
+Бизнес-контекст: приложение выступает основной mobile-точкой взаимодействия клуба с болельщиками, объединяя контент, матчевые активности, билеты, профиль и сервисы во время посещения арены.
 
 ## Ключевые этапы разработки:
 
-#### 1. Базовая структура и инфраструктура
-   - формирование структуры модулей приложения;
-   - подключение ассетов и шрифтов;
-   - добавление GitHub Actions CI.
+#### 1. Базовая архитектура и инфраструктура
+   - выстроена feature-first структура (core + features);
+   - подключены DI, роутинг и codegen-цепочка;
+   - настроены единые подходы к логированию и обработке ошибок.
 
-#### 2. Домен и данные
-   - введение сущностей BMS и enum-моделей;
-   - подключение зависимостей для локальной БД;
-   - развитие BLE data source, фиксы UUID/характеристик.
+#### 2. Домен и data-слой
+   - сформированы доменные модели и контракты репозиториев;
+   - реализованы remote/local data source и мапперы;
+   - добавлено локальное хранение через _Drift_ и _SharedPreferences_.
 
-#### 3. Use case-ориентированный слой
-   - добавлены сценарии: BLE status, scan, connect/disconnect, device stream, request enable Bluetooth;
-   - замена polling-подхода для статуса BLE на event-oriented поведение (BleStatusSetOn).
+#### 3. Навигация и пользовательские флоу
+   - реализован nested-роутинг через _auto_route_;
+   - объединены ключевые разделы: main, season, tickets, more;
+   - добавлены сценарии onboarding/auth/profile/settings.
 
-#### 4. UI-слой и навигация
-   - рефакторинг страницы разрешений;
-   - добавление root-page индекса и нижней навигации;
-   - крупные улучшения scan-экрана и подключений.
+#### 4. Контентные и матчевые модули
+   - реализованы блоки news, media, stories, tournament table;
+   - добавлен match review для будущих/текущих/прошедших матчей;
+   - внедрены webview и медиаплееры (YouTube, VK Video).
 
-#### 5. Мониторинг и dashboard
-   - запуск dashboard-страницы с компонентами телеметрии;
-   - фиксы lifecycle/логирования device monitor bloc;
-   - добавление пользовательских имён BMS.
+#### 5. Ticketing и in-arena сценарии
+   - развиты модули tickets, user tickets и детали абонементов;
+   - реализован контур in-arena: QR, заказы, навигация;
+   - добавлены loyalty program и bonus history.
 
-#### 6. Углубление протокольной поддержки
-   - шаги по поддержке JK-BD4A8S4P;
-   - декомпозиция BLE connector и внедрение нативного Android BLE manager;
-   - фиксы iOS UUID-поведения.
-
-#### 7. Расширение покрываемых устройств и UX
-   - добавление Daly BMS;
-   - обновление иконок, splash screen;
-   - обновление scanDevices для DL-T серии;
-   - обновление UI и переводов scan/dashboard.
+#### 6. Интеграции и observability
+   - подключены _Firebase_ _Analytics_, _Crashlytics_ и _FCM_;
+   - реализован сервис локальных уведомлений;
+   - добавлена авторизация через VK ID SDK;
+   - внедрены Live Activities для онлайн-матча.
 
 ## Решение
-Реализована модульная архитектура с разделением ответственности по слоям:
-- ***presentation*** - страницы, виджеты, BLoC/Cubit;
-- ***domain*** - сущности, контракты и use cases;
-- ***data*** - реализация репозиториев, протоколы, BLE-коннекторы, локальная БД;
-- ***core*** - DI, логирование, константы, генерируемые ресурсы, платформенные абстракции.
+Реализована feature-first архитектура с явным разделением слоёв:
+- ***presentation*** - страницы, виджеты, _BLoC_ / _Cubit_;
+- ***domain*** - модели, контракты и use cases;
+- ***data*** - репозитории, remote/local data source, DTO/мапперы;
+- ***core*** - DI, роутинг, тема, сеть, логирование, платформенные сервисы.
 Ключевые технические решения:
-- единый BLoC-пайплайн для BLE состояния и пользовательских потоков;
-- обособленные коннекторы под разные устройства/протоколы;
-- fallback/special-case сценарии через platform channels там, где стандартного BLE-плагина недостаточно;
-- хранение пользовательских данных (например, custom name устройств) в локальной БД;
-- централизованная инициализация зависимостей и логирования.
+- единая модульная схема для независимого развития feature-команд;
+- централизованный DI через _get_it_ + _injectable_;
+- nested-навигация на _auto_route_ для сложных переходов;
+- сеть на _Dio_ с интерсепторами авторизации и ошибок;
+- локальные данные через _Drift_ / _SharedPreferences_;
+- observability через _talker_, _FirebaseAnalyticsObserver_, _Crashlytics_;
+- i18n через _slang_ и системную локаль в рантайме.
 
 ## Детальная структура модулей
 - **Core**
-  - DI (get_it, injectable), logger (talker), constants/enums, theme, generated assets/strings.
+  - DI (_get_it_, _injectable_), тема, router, network/interceptors, logger, platform services.
 - **Data**
-  - BLE connectors (ble_device_connector, jk_dual_char_connector);
-  - protocol parsers (ffe0, fff0, packet assembler, protocol factory);
-  - repositories (ble_data_source_impl, bms_repository_impl);
-  - local DB (drift).
+  - remote data source и API-DTO;
+  - local DB/DAO (_drift_) и локальные таблицы;
+  - репозитории и мапперы доменных моделей.
 - **Domain**
-  - entities: snapshot, errors, cells, devices;
-  - repositories interfaces;
-  - use cases: scan, connect, disconnect, observe status, stream device, enable bluetooth, rename device.
+  - сущности и value-объекты;
+  - интерфейсы репозиториев;
+  - use cases для auth, user data, notifications, match online.
 - **Presentation**
-  - pages: splash, permissions, scan, dashboard;
-  - blocs: ble_status, scan, device_manager, device_monitor, root_page_index;
-  - widgets: scan cards/lists, dashboard sections, gauges, error indicators, rename dialogs.
+  - feature pages/wrappers (main, season, tickets, more, in_arena);
+  - _BLoC_ / _Cubit_ для экранной логики;
+  - переиспользуемые UI-компоненты и app-widgets.
 
-## Platform Channels (детально)
-В проекте есть осознанное использование platform channels для сценариев, где нужен контроль над нативным BLE-поведением.
+## Platform-specific интеграции (детально)
+В проекте есть осознанное использование платформенных возможностей для user-facing сценариев.
 
-#### 1. BLE Enabler channel
-- Channel: com.compass.stark/ble_enabler
-- Тип: MethodChannel
-- Dart: lib/core/platform/ble_enabler.dart
-- Android: MainActivity.kt (BluetoothAdapter.ACTION_REQUEST_ENABLE)
-- iOS: AppDelegate.swift (CBCentralManagerOptionShowPowerAlertKey)
+#### 1. Firebase Messaging + Local Notifications
+- Сервисы: _FirebaseMessageServices_, _LocalNotificationsService_
+- Сценарии:
+  - получение и обновление _FCM_ token;
+  - запрос/удаление разрешений на push;
+  - обработка foreground/background push-сообщений;
+  - локальный показ уведомлений с payload-данными.
 
-![BLE Enabler](assets/projects/compass-ble/images/ble_enabler.png)
+Назначение: стабильная доставка уведомлений и контролируемый UX при разных состояниях приложения.
 
-Назначение: инициировать системный сценарий включения Bluetooth без выхода из приложения.
+#### 2. Live Activities (онлайн-матч)
+- Сервис: LiveActivityOnlineMatchService
+- Плагин: _live_activities_
+- Сценарии:
+  - инициализация активности и создание/обновление/завершение;
+  - обработка логотипов команд для iOS/Android (base64/локальные файлы);
+  - устойчивый lifecycle активности в матчевом потоке.
 
-#### 2. Native BLE manager channels (Android-only)
-- Method channel: com.compass.stark/native_ble
-- Event channel: com.compass.stark/native_ble_notify
-- Dart wrapper: lib/core/platform/native_ble_manager.dart
-- Android implementation:
-  - android/app/src/main/kotlin/com/compass/stark/MainActivity.kt
-  - android/app/src/main/kotlin/com/compass/stark/NativeBleManager.kt
+Назначение: real-time отображение ключевого статуса матча вне приложения.
 
-Назначение: полный нативный BLE-цикл для проблемных устройств с неоднозначными/дублирующимися characteristic UUID:
+#### 3. VK ID SDK
+- Сервис: VkAuthService
+- Плагин: _vkid_flutter_sdk_
+- Сценарии:
+  - единая точка инициализации VKID;
+  - интеграция в auth-flow;
+  - логирование и контроль состояния SDK.
 
-- connect
-- request MTU
-- discover + setup notify/write
-- write
-- disconnect
-- isConnected
-- stream notify events через EventChannel
-Интеграция с data-слоем:
-- используется native path на Android;
-- на iOS сохраняется путь через flutter_reactive_ble.
+Назначение: нативный и привычный способ авторизации для целевой аудитории приложения.
 
 ## Что реализовано по функционалу
-- Экран разрешений и onboarding-переход в основной поток.
-- BLE-сканирование устройств со списком результатов.
-- Управление подключением/отключением + отображение connection state.
-- Дашборд с телеметрией BMS:
-  - секция температур;
-  - секция напряжений ячеек;
-  - секция ошибок;
-  - battery remain и индикаторы.
-- Сохранение и очистка пользовательских имён устройств.
-- Splash screen, дизайн-обновления, локализация.
+- Главный экран, stories, календарные/сезонные блоки и турнирная таблица.
+- Матч-центр: future/current/past матчи, обзор и контентные блоки матча.
+- Новости и медиа-раздел (фото, видео, webview-контент).
+- Билеты и пользовательские тикеты, включая страницы деталей.
+- Профиль пользователя, настройки и управление уведомлениями.
+- In-arena блок: QR, заказы, каталог и навигация по арене.
+- Loyalty program, bonus history, shop и дополнительные клубные сервисы.
 
 ## Результаты
-- Сформирована рабочая production-oriented база приложения для BLE BMS-мониторинга.
-- Обеспечена расширяемость под новые BMS-протоколы и устройства.
-- Закрыт критичный Android BLE-кейс через нативный менеджер для сложных характеристик.
-- Повышена стабильность UX:
-  - улучшен flow разрешений/включения Bluetooth;
-  - устранены проблемы сканирования для DL-T серии;
-  - исправлены lifecycle/logging edge-cases в мониторинге устройства.
-- Подключён CI-контур качества и сборки артефакта APK в GitHub Actions.
+- Сформирована production-oriented платформа fan-приложения с широким feature-набором.
+- В одном приложении объединены контент, матчевые сценарии, tickets и in-arena сервисы.
+- Повышена стабильность эксплуатации за счёт системного логирования и crash-репортинга.
+- Реализована сквозная push-инфраструктура с контролем permissions/token flow.
+- Подготовлена архитектурная база для масштабирования модулей и командной разработки.
 
-## Инструменты и стек (подробно)
+## Технический стек (детально)
 - **Flutter/Dart**
-  - Flutter SDK stable в CI (3.24.x)
-  - Dart SDK ^3.10.4
+  - Flutter SDK
+  - Dart SDK _^3.6.0_
 - **State management**
-  - flutter_bloc, equatable
+  - _flutter_bloc_, _equatable_
 - **Dependency injection**
-  - get_it, injectable
-- **BLE**
-  - flutter_reactive_ble
-  - Platform channels + Kotlin native BLE manager (Android)
+  - _get_it_, _injectable_
+- **Routing**
+  - _auto_route_
+- **Networking**
+  - _dio_ + custom interceptors
 - **Data layer**
-  - drift, drift_flutter, path_provider
-- **FP/error handling**
-  - either_dart
-- **Logging/observability**
-  - talker_flutter, talker_bloc_logger
+  - _drift_, _sqlite3_flutter_libs_, _shared_preferences_
+- **Integrations**
+  - _firebase_core_, _firebase_analytics_, _firebase_crashlytics_, _firebase_messaging_
+  - _flutter_local_notifications_, _vkid_flutter_sdk_, _live_activities_
+- **Media/UI**
+  - _youtube_player_flutter_, _vk_video_, _webview_flutter_, _flutter_html_, _lottie_
 - **Localization/codegen**
-  - slang, slang_flutter
-  - build_runner, drift_dev, flutter_gen
-- **UI/UX packages**
-  - google_nav_bar, material_design_icons_flutter, lottie,
-    loading_animation_widget, animated_text_kit, animated_snack_bar
-- **CI/CD**
-  - GitHub Actions:
-    - dart format --set-exit-if-changed .
-    - flutter analyze
-    - flutter test
-    - flutter build apk --release
-    - публикация APK артефакта
+  - _slang_, _slang_flutter_, _build_runner_, _freezed_
 
 ## Роль и зона ответственности
 Полный цикл Flutter-разработки в проекте:
-- проектирование архитектуры и слоёв;
-- реализация BLE-сценариев и протокольной интеграции;
-- разработка UI и пользовательских потоков;
-- нативная интеграция через platform channels (Android/Kotlin, iOS/Swift);
-- настройка CI и quality gates;
-- рефакторинг и техническая стабилизация при росте функциональности.
+- проектирование и развитие модульной архитектуры;
+- реализация feature-модулей и пользовательских сценариев;
+- интеграция _Firebase_, VK ID и Live Activities;
+- развитие навигации, DI и сетевого слоя;
+- поддержка качества через логирование, observability и техническую стабилизацию.
 
 ## Ограничения и технические нюансы
-- BLE-поведение заметно различается между Android/iOS, часть логики платформо-специфична.
-- Для отдельных устройств требуется нативный Android путь из-за особенностей характеристик.
-- Реальная валидация BLE-сценариев требует тестов на физических устройствах.
+- Большое количество feature-модулей требует строгой дисциплины в границах слоёв и зависимостях.
+- Часть сценариев (push/background/live activity) чувствительна к платформенным ограничениям iOS/Android.
+- Реальная валидация продуктовых сценариев требует тестов на физических устройствах и в матчевые дни.
 
 ## Дальнейшие шаги
-- Расширение матрицы поддерживаемых BMS-протоколов.
-- Добавление глубокой диагностики каналов и телеметрии подключения.
-- Усиление automated tests (unit/widget/integration) для ключевых BLE-use-cases.
-- Подготовка продуктовой документации и публичного case-описания при необходимости.
+- Усиление automated tests (unit/widget/integration) для критических пользовательских потоков.
+- Формализация CI quality gates для ключевых веток и релизных сборок.
+- Расширение мониторинга бизнес-событий и продуктовой аналитики.
+- Подготовка публичного case-описания и визуальных артефактов проекта.
