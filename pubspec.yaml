@@ -58,6 +58,8 @@ flutter:
     - assets/projects/compass-ble/images/
     - assets/projects/torpedo/
     - assets/projects/torpedo/images/
+    - assets/projects/niagara/
+    - assets/projects/niagara/images/
     - assets/stickers/too-narrow-placeholder.png
 
   fonts:
