@@ -1,7 +1,7 @@
 ---
 slug: compass-ble
 title: Compass BLE
-role: Senior Flutter Developer
+role: IoT Flutter Developer
 period: 2026 - настоящее время
 client: НПО "Компас" (Stark)
 summary: Кроссплатформенное Flutter-приложение для BLE-мониторинга BMS (JK, Daly и др.) с нативным Android BLE-каналом для сложных устройств, дашбордом телеметрии и локальным хранением пользовательских настроек.
@@ -97,7 +97,7 @@ order: 1
   - local DB (_drift_).
 
 
-![BLE Enabler](assets/projects/compass-ble/images/getConnector.png)
+![BLE connector](assets/projects/compass-ble/images/getConnector.png)
 
 
 - **Domain**
@@ -105,7 +105,7 @@ order: 1
   - repositories interfaces;
   - use cases: scan, connect, disconnect, observe status, stream device, enable bluetooth, rename device.
 
-![BLE Enabler](assets/projects/compass-ble/images/ScanDevicesUseCase.png)
+![BLE device usecase](assets/projects/compass-ble/images/ScanDevicesUseCase.png)
 
 
 - **Presentation**
@@ -123,7 +123,7 @@ order: 1
 - Android: MainActivity.kt (BluetoothAdapter.ACTION_REQUEST_ENABLE)
 - iOS: AppDelegate.swift (CBCentralManagerOptionShowPowerAlertKey)
 
-![BLE Enabler](assets/projects/compass-ble/images/requestEnableBluetooth.png)
+![BLE request enable](assets/projects/compass-ble/images/requestEnableBluetooth.png)
 
 #### 2. Native BLE manager channels (Android-only)
 
@@ -151,7 +151,7 @@ order: 1
 - Экран разрешений и onboarding-переход в основной поток.
 - BLE-сканирование устройств со списком результатов.
 
-![BLE Manager](assets/projects/compass-ble/images/scanFilterUuids.png)
+![BLE scan filter](assets/projects/compass-ble/images/scanFilterUuids.png)
 
 
 - Управление подключением/отключением + отображение connection state.
@@ -204,9 +204,9 @@ order: 1
     - flutter build apk --release
     - публикация APK артефакта
 
-![BLE Manager](assets/projects/compass-ble/images/ci_1.png)
+![BLE github action part1](assets/projects/compass-ble/images/ci_1.png)
 
-![BLE Manager](assets/projects/compass-ble/images/ci_2.png)
+![BLE github action part2](assets/projects/compass-ble/images/ci_2.png)
 
 ## Роль и зона ответственности
 Полный цикл Flutter-разработки в проекте:
@@ -222,7 +222,7 @@ order: 1
 - Для отдельных устройств требуется нативный Android путь из-за особенностей характеристик.
 - Реальная валидация BLE-сценариев требует тестов на физических устройствах.
 
-![BLE Manager](assets/projects/compass-ble/images/nativeSetup.png)
+![BLE native setup](assets/projects/compass-ble/images/nativeSetup.png)
 
 
 ## Дальнейшие шаги

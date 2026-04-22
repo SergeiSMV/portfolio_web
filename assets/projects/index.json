@@ -1,6 +1,7 @@
 {
   "projects": [
     "compass-ble",
-    "torpedo"
+    "torpedo",
+    "niagara"
   ]
 }

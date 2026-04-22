@@ -20,6 +20,9 @@ class $AssetsProjectsGen {
   /// File path: assets/projects/index.json
   String get index => 'assets/projects/index.json';
 
+  /// Directory path: assets/projects/niagara
+  $AssetsProjectsNiagaraGen get niagara => const $AssetsProjectsNiagaraGen();
+
   /// Directory path: assets/projects/torpedo
   $AssetsProjectsTorpedoGen get torpedo => const $AssetsProjectsTorpedoGen();
 
@@ -52,6 +55,19 @@ class $AssetsProjectsCompassBleGen {
 
   /// List of all assets
   List<String> get values => [readme, compassBle];
+}
+
+class $AssetsProjectsNiagaraGen {
+  const $AssetsProjectsNiagaraGen();
+
+  /// Directory path: assets/projects/niagara/images
+  $AssetsProjectsNiagaraImagesGen get images => const $AssetsProjectsNiagaraImagesGen();
+
+  /// File path: assets/projects/niagara/niagara.md
+  String get niagara => 'assets/projects/niagara/niagara.md';
+
+  /// List of all assets
+  List<String> get values => [niagara];
 }
 
 class $AssetsProjectsTorpedoGen {
@@ -120,21 +136,68 @@ class $AssetsProjectsCompassBleImagesGen {
   ];
 }
 
+class $AssetsProjectsNiagaraImagesGen {
+  const $AssetsProjectsNiagaraImagesGen();
+
+  /// File path: assets/projects/niagara/images/cover.jpg
+  AssetGenImage get cover => const AssetGenImage('assets/projects/niagara/images/cover.jpg');
+
+  /// List of all assets
+  List<AssetGenImage> get values => [cover];
+}
+
 class $AssetsProjectsTorpedoImagesGen {
   const $AssetsProjectsTorpedoImagesGen();
-
-  /// File path: assets/projects/torpedo/images/1234.png
-  AssetGenImage get a1234 => const AssetGenImage('assets/projects/torpedo/images/1234.png');
-
-  /// File path: assets/projects/torpedo/images/ble_enabler.png
-  AssetGenImage get bleEnabler =>
-      const AssetGenImage('assets/projects/torpedo/images/ble_enabler.png');
 
   /// File path: assets/projects/torpedo/images/cover.png
   AssetGenImage get cover => const AssetGenImage('assets/projects/torpedo/images/cover.png');
 
+  /// File path: assets/projects/torpedo/images/entitlements.png
+  AssetGenImage get entitlements =>
+      const AssetGenImage('assets/projects/torpedo/images/entitlements.png');
+
+  /// File path: assets/projects/torpedo/images/fmc.png
+  AssetGenImage get fmc => const AssetGenImage('assets/projects/torpedo/images/fmc.png');
+
+  /// File path: assets/projects/torpedo/images/integrations.png
+  AssetGenImage get integrations =>
+      const AssetGenImage('assets/projects/torpedo/images/integrations.png');
+
+  /// File path: assets/projects/torpedo/images/interceptors.png
+  AssetGenImage get interceptors =>
+      const AssetGenImage('assets/projects/torpedo/images/interceptors.png');
+
+  /// File path: assets/projects/torpedo/images/live_activities.png
+  AssetGenImage get liveActivities =>
+      const AssetGenImage('assets/projects/torpedo/images/live_activities.png');
+
+  /// File path: assets/projects/torpedo/images/live_activities_init.png
+  AssetGenImage get liveActivitiesInit =>
+      const AssetGenImage('assets/projects/torpedo/images/live_activities_init.png');
+
+  /// File path: assets/projects/torpedo/images/navigation.png
+  AssetGenImage get navigation =>
+      const AssetGenImage('assets/projects/torpedo/images/navigation.png');
+
+  /// File path: assets/projects/torpedo/images/notify.png
+  AssetGenImage get notify => const AssetGenImage('assets/projects/torpedo/images/notify.png');
+
+  /// File path: assets/projects/torpedo/images/vk.png
+  AssetGenImage get vk => const AssetGenImage('assets/projects/torpedo/images/vk.png');
+
   /// List of all assets
-  List<AssetGenImage> get values => [a1234, bleEnabler, cover];
+  List<AssetGenImage> get values => [
+    cover,
+    entitlements,
+    fmc,
+    integrations,
+    interceptors,
+    liveActivities,
+    liveActivitiesInit,
+    navigation,
+    notify,
+    vk,
+  ];
 }
 
 class Assets {
